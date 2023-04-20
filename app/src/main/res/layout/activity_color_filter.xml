@@ -4,55 +4,55 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    tools:context=".activity.PathEffectActivity">
 
     <TextView
-        android:id="@+id/matrix"
+        android:id="@+id/basic"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:background="@drawable/round_bg_corner_5dp"
         android:gravity="center"
         android:minWidth="80dp"
-        android:onClick="onClickMatrix"
-        android:text="Matrix"
+        android:onClick="onClickBasicUse"
+        android:text="BasicUse"
         android:textColor="@android:color/white"
-        app:layout_constraintBottom_toTopOf="@id/path_effect"
+        app:layout_constraintBottom_toTopOf="@id/translate"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_chainStyle="packed" />
 
     <TextView
-        android:id="@+id/path_effect"
+        android:id="@+id/translate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
         android:background="@drawable/round_bg_corner_5dp"
         android:gravity="center"
         android:minWidth="80dp"
-        android:onClick="onClickPathEffect"
-        android:text="PathEffect"
+        android:onClick="onClickTranslate"
+        android:text="Translate"
         android:textColor="@android:color/white"
-        app:layout_constraintBottom_toTopOf="@id/cfilter"
+        app:layout_constraintBottom_toTopOf="@id/scale"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/matrix" />
+        app:layout_constraintTop_toBottomOf="@id/basic" />
 
     <TextView
-        android:id="@+id/cfilter"
+        android:id="@+id/scale"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="6dp"
         android:background="@drawable/round_bg_corner_5dp"
         android:gravity="center"
         android:minWidth="80dp"
-        android:onClick="onClickColorFilter"
-        android:text="ColorFilter"
+        android:onClick="onClickScale"
+        android:text="Scale"
         android:textColor="@android:color/white"
         app:layout_constraintBottom_toTopOf="@id/rotate"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/path_effect" />
+        app:layout_constraintTop_toBottomOf="@id/translate" />
 
     <TextView
         android:id="@+id/rotate"
@@ -68,7 +68,7 @@
         app:layout_constraintBottom_toTopOf="@id/skew"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/cfilter" />
+        app:layout_constraintTop_toBottomOf="@id/scale" />
 
     <TextView
         android:id="@+id/skew"
