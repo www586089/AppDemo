@@ -5,6 +5,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.view.View
 import com.zfang.appdemo.R
+import com.zfang.appdemo.activity.cfilter.SingleChannelColorFilterActivity
 import com.zfang.appdemo.activity.matrix.*
 import com.zfang.appdemo.base.BaseActivity
 
@@ -21,6 +22,10 @@ class ColorFilterActivity : BaseActivity() {
         initToolbar(title = "ColorFilter")
     }
 
+    fun onClickSingleChannel(view: View) {
+        SingleChannelColorFilterActivity.start(this)
+    }
+    
     fun onClickBasicUse(view: View) {
         BasicUseActivity.start(this)
     }
