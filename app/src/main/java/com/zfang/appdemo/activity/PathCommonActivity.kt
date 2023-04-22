@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.view.View
 import com.zfang.appdemo.R
 import com.zfang.appdemo.activity.path.LineCapActivity
+import com.zfang.appdemo.activity.path.LineJoinActivity
 import com.zfang.appdemo.base.BaseActivity
 
 class PathCommonActivity : BaseActivity() {
@@ -23,5 +24,9 @@ class PathCommonActivity : BaseActivity() {
 
     fun onLineCapClick(view: View) {
         LineCapActivity.start(this)
+    }
+
+    fun onLineJoinClick(view: View) {
+        LineJoinActivity.start(this)
     }
 }
