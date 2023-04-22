@@ -12,9 +12,9 @@ import com.zfang.appdemo.common.px2Dp
 /**
  * 颜色渐变----放大
  */
-class ShaderScaleView(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
+class ShaderScaleRectView(context: Context?, attrs: AttributeSet?) : View(context, attrs) {
 
-    private val TAG = "ShaderScaleView"
+    private val TAG = "ShaderScaleRectView"
     private var canvasHeight = 0f
     private var canvasWidth = 0f
     private var rectPaint = Paint()
@@ -81,7 +81,6 @@ class ShaderScaleView(context: Context?, attrs: AttributeSet?) : View(context, a
             animatedRectF.set(paddingH, rTop, paddingH + rectWidth, rTop + rectHeight)
             originRect.set(animatedRectF)
             rectPaint.shader = shader
-//            shader!!.setLocalMatrix(cMatrix)
         }
         canvas!!.drawRect(animatedRectF, rectPaint)
         canvas.drawRect(rectF, dashPaint)

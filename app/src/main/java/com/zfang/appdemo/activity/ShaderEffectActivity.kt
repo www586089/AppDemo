@@ -50,6 +50,10 @@ class ShaderEffectActivity : BaseActivity() {
     }
 
     fun onClickShaderScale(view: View) {
-        ShaderScaleActivity.start(this)
+        ShaderScaleRectActivity.start(this)
+    }
+
+    fun onClickShaderScaleCircle(view: View) {
+        ShaderScaleCircleActivity.start(this)
     }
 }
