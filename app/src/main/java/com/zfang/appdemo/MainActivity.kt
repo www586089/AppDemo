@@ -3,10 +3,7 @@ package com.zfang.appdemo
 import android.os.Bundle
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
-import com.zfang.appdemo.activity.ColorFilterActivity
-import com.zfang.appdemo.activity.MatrixActivity
-import com.zfang.appdemo.activity.PathEffectActivity
-import com.zfang.appdemo.activity.TestActivity
+import com.zfang.appdemo.activity.*
 import com.zfang.appdemo.activity.matrix.*
 
 class MainActivity : AppCompatActivity() {
@@ -22,6 +19,10 @@ class MainActivity : AppCompatActivity() {
 
     fun onClickPathEffect(view: View) {
         PathEffectActivity.start(this)
+    }
+
+    fun onClickPathCommon(view: View) {
+        PathCommonActivity.start(this)
     }
 
     fun onClickRotate(view: View) {

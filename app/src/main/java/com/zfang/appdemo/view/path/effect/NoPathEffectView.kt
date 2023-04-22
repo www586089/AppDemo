@@ -1,4 +1,4 @@
-package com.zfang.appdemo.view.path
+package com.zfang.appdemo.view.path.effect
 
 import android.content.Context
 import android.graphics.PathEffect
