@@ -6,9 +6,11 @@ import android.text.TextPaint
 import android.util.AttributeSet
 import android.util.Log
 import android.view.View
+import androidx.core.content.ContextCompat
 import com.zfang.appdemo.R
 import com.zfang.appdemo.common.px2Dp
 
+//https://www.jianshu.com/p/19997b0b5b24
 class PorterDuffColorFilterView2(context: Context?, attrs: AttributeSet?) :
     View(context, attrs) {
     private var TAG = "PorterDuffColorFilterView2"
@@ -79,7 +81,7 @@ class PorterDuffColorFilterView2(context: Context?, attrs: AttributeSet?) :
             //必须使用离屏绘制，否则无效果
             val saveCount = canvas!!.saveLayer(left, top, left + bitmapWidth, top + bitmapHeight, bitmapPaint)
             //1 首先绘制目标图像
-            canvas.drawBitmap(dstBitmap, left, top, bitmapPaint)
+            canvas.drawBitmap(makeDst2(), left, top, bitmapPaint)
 
 //            val rectLeft = left + bitmapWidth - srcBitmap.width
 //            val rectTop = top + bitmapHeight - srcBitmap.height
@@ -88,7 +90,7 @@ class PorterDuffColorFilterView2(context: Context?, attrs: AttributeSet?) :
             //2 设置xfermode
             bitmapPaint.xfermode = (colorFilterMode.get(index))
             //3 绘制源图像
-            canvas.drawBitmap(srcBitmap, rectLeft, rectTop, bitmapPaint)
+            canvas.drawBitmap(makeSrc2(), rectLeft, rectTop, bitmapPaint)
             //4 清空xfermode
             bitmapPaint.xfermode = null
             canvas.restoreToCount(saveCount)
@@ -202,4 +204,38 @@ class PorterDuffColorFilterView2(context: Context?, attrs: AttributeSet?) :
         return lightColorFilters
     }
 
+
+
+    fun makeSrc2(): Bitmap {
+        val width = bitmapWidth.div(3f)
+        val bitmap =
+            Bitmap.createBitmap(bitmapWidth.toInt(), bitmapWidth.toInt(), Bitmap.Config.ARGB_8888)
+        val c = Canvas(bitmap)
+        val p = Paint().apply {
+            style = Paint.Style.FILL
+            color = ContextCompat.getColor(context, R.color.colorAccent)
+        }
+        c.drawRect(width, width, bitmapWidth, bitmapWidth, p)
+        Log.e("zfang", "bitmapWidth = $bitmapWidth")
+        Log.e("zfang", "src width = ${bitmap.width}")
+        return bitmap
+    }
+
+    fun makeDst2(): Bitmap {
+        val radius = bitmapWidth.div(3f)
+        val bitmap = Bitmap.createBitmap(
+            radius.times(2).toInt()
+            , radius.times(2).toInt(), Bitmap.Config.ARGB_8888
+        )
+        val canvas = Canvas(bitmap)
+        val paint = Paint().apply {
+            style = Paint.Style.FILL
+            color = ContextCompat.getColor(context, R.color.colorPrimary)
+        }
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+//            canvas.drawOval(0f, 0f, radius.times(2), radius.times(2), paint)
+//        }
+        canvas.drawCircle(radius, radius, radius, paint)
+        return bitmap
+    }
 }
