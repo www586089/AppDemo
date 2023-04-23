@@ -1,4 +1,4 @@
-package com.zfang.appdemo.activity.view
+package com.zfang.appdemo.activity.view.drag
 
 import android.app.Activity
 import android.content.Intent
