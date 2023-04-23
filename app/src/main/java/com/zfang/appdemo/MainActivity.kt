@@ -7,7 +7,7 @@ import com.zfang.appdemo.activity.*
 import com.zfang.appdemo.activity.matrix.*
 import com.zfang.appdemo.activity.view.ViewOpActivity
 import com.zfang.appdemo.activity.view.drag.ViewDragActivity
-import com.zfang.appdemo.test.glide.testRxJava
+import com.zfang.appdemo.test.glide.testException
 
 class MainActivity : AppCompatActivity() {
 
@@ -18,7 +18,7 @@ class MainActivity : AppCompatActivity() {
 
     fun onClickMatrix(view: View) {
 //        MatrixActivity.start(this)
-        testRxJava()
+        testException()
     }
 
     fun onClickPathEffect(view: View) {
