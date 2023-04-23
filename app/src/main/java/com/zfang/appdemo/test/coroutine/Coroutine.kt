@@ -1,4 +1,4 @@
-package com.zfang.graphicdemo.test.coroutine
+package com.zfang.appdemo.test.coroutine
 
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*

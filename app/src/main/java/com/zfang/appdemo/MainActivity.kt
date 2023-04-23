@@ -5,6 +5,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.zfang.appdemo.activity.*
 import com.zfang.appdemo.activity.matrix.*
+import com.zfang.appdemo.activity.view.ViewRotationActivity
 
 class MainActivity : AppCompatActivity() {
 
@@ -55,5 +56,9 @@ class MainActivity : AppCompatActivity() {
 
     fun onClickTest(view: View) {
         TestActivity.start(this)
+    }
+
+    fun onClickViewRotation(view: View) {
+        ViewRotationActivity.start(this)
     }
 }
