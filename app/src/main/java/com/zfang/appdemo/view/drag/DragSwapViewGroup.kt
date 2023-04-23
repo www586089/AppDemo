@@ -58,6 +58,8 @@ class DragSwapViewGroup(ctx: Context, attrs: AttributeSet): ConstraintLayout(ctx
     private var settleSwapAnimatorSet: AnimatorSet? = null
     private var settleDragAnimatorSet: AnimatorSet? = null
 
+    private var swapListener: OnViewSwapListener? = null
+
     init {
         val resources = resources
         dragTopShadowDrawable = ContextCompat.getDrawable(context, R.drawable.ab_solid_shadow_holo_flipped)
@@ -65,6 +67,10 @@ class DragSwapViewGroup(ctx: Context, attrs: AttributeSet): ConstraintLayout(ctx
         dragShadowHeight = resources.getDimensionPixelSize(R.dimen.downwards_drop_shadow_height)
         strokeDrawable = ContextCompat.getDrawable(context, R.drawable.shape_bg_editaccount_avatar_stroke)
         touchSlop = ViewConfiguration.get(ctx).scaledTouchSlop
+    }
+
+    public fun setSwapListener(swapListener: OnViewSwapListener) {
+        this.swapListener = swapListener
     }
 
     override fun onLayout(changed: Boolean, left: Int, top: Int, right: Int, bottom: Int) {
@@ -294,12 +300,19 @@ class DragSwapViewGroup(ctx: Context, attrs: AttributeSet): ConstraintLayout(ctx
                             swapBitmapDrawable = null
                             invalidate()
                             dragView!!.visibility = View.VISIBLE
+                            notifySwap()
                         }
                     }
                 })
 
                 start()
             }
+        }
+    }
+
+    private fun notifySwap() {
+        swapListener?.apply {
+            onViewSwap(dragView!!, indexOfChild(dragView), swapViewObj!!.view, indexOfChild(swapViewObj!!.view))
         }
     }
 
@@ -382,5 +395,9 @@ class DragSwapViewGroup(ctx: Context, attrs: AttributeSet): ConstraintLayout(ctx
             val dy = (to.y - point.y).toDouble()
             return Math.sqrt(Math.pow(dx, 2.toDouble()) + Math.pow(dy, 2.toDouble())).toInt()
         }
+    }
+
+    interface OnViewSwapListener {
+        fun onViewSwap(firstView: View, firstPosition: Int, secondView: View, secondPosition: Int)
     }
 }
