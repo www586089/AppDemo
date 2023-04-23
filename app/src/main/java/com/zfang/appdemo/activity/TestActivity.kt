@@ -3,7 +3,9 @@ package com.zfang.appdemo.activity
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
 import com.zfang.appdemo.R
+import com.zfang.appdemo.activity.test.ScrollTestActivity
 import com.zfang.appdemo.base.BaseActivity
 
 class TestActivity : BaseActivity() {
@@ -17,5 +19,9 @@ class TestActivity : BaseActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_test)
         initToolbar(title = "实验")
+    }
+
+    fun onClickScrollTest(view: View) {
+        ScrollTestActivity.start(this)
     }
 }
