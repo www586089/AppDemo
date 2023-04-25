@@ -68,4 +68,8 @@ class MainActivity : AppCompatActivity() {
     fun onClickDragView(view: View) {
         ViewDragActivity.start(this)
     }
+
+    fun onClickSurface(view: View) {
+        SurfaceViewActivity.startActivity(this)
+    }
 }
