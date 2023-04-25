@@ -5,7 +5,7 @@ import com.zfang.appdemo.refact.Movie;
 
 public class RegularPrice extends Price {
     @Override
-    int getPriceCode() {
+    public int getPriceCode() {
         return Movie.REGUALAR;
     }
 }
