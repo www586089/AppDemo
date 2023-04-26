@@ -9,6 +9,7 @@ import android.view.View
 import com.zfang.appdemo.R
 import com.zfang.appdemo.activity.surfaceview.packet.PacketManager
 import com.zfang.appdemo.base.BaseActivity
+import com.zfang.appdemo.common.px2Dp
 import com.zfang.appdemo.utils.getScreenHeight
 import com.zfang.appdemo.utils.getScreenWidth
 import kotlinx.android.synthetic.main.activity_red_pack_rain.*
@@ -36,9 +37,19 @@ class RedPackRainActivity: BaseActivity() {
     fun startRedPacketRain(view: View) {
         val width = getScreenWidth(this).toFloat()
         val height = getScreenHeight(this).toFloat()
-        val startRegion = RectF(0f, 0f, width, packetView.height.toFloat() / 3)
-        val endRegion = RectF(0f, 0.75f * packetView.height.toFloat(), width, packetView.height.toFloat())
-        PacketManager.generatePacket("12", startRegion, endRegion, packetCount = 5)
-        PacketManager.startRainAnimation()
+        val offset = 5.px2Dp(this)
+        val startRegion = RectF(0f + offset, 0f + offset, width - offset, 100.px2Dp(this).toFloat() - offset)
+
+        val bottomViewHeight = 100.px2Dp(this)
+        val bottomDisappearHeight = 80.px2Dp(this)
+        val viewHeight = packetView.height.toFloat()
+        val endRegion = RectF(0f + offset, viewHeight - (bottomViewHeight + bottomDisappearHeight), width - offset, viewHeight - bottomViewHeight)
+        PacketManager.generateAnimationItem(this, "12", startRegion, endRegion, packetCount = 10, 75f)
+        PacketManager.startRainAnimation(object : PacketManager.RainAnimationEnd {
+            override fun onEnd() {
+                packetView.stopDrawing()
+            }
+        })
+        packetView.startDrawing()
     }
 }
