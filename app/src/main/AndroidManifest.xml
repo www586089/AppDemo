@@ -63,6 +63,7 @@
         <activity android:name=".activity.test.ScrollTestActivity" />
         <activity android:name=".activity.SurfaceViewActivity"/>
         <activity android:name=".activity.surfaceview.RedPackRainActivity"/>
+        <activity android:name=".activity.bitmap.BitmapActivity"/>
     </application>
 
 </manifest>
