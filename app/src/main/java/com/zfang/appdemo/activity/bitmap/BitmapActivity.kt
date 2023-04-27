@@ -4,11 +4,12 @@ import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.View
 import com.zfang.appdemo.R
 import com.zfang.appdemo.base.BaseActivity
+import com.zfang.appdemo.databinding.ActivityBitmapLayoutBinding
 import com.zfang.appdemo.utils.BitmapUtils
-import kotlinx.android.synthetic.main.activity_bitmap_layout.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
@@ -21,19 +22,21 @@ class BitmapActivity: BaseActivity() {
     }
 
     var girlBitmap: Bitmap? = null
+    private lateinit var binding: ActivityBitmapLayoutBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_bitmap_layout)
+        binding = ActivityBitmapLayoutBinding.inflate(LayoutInflater.from(this))
+        setContentView(binding.root)
         initToolbar(title = "Bitmap操作")
     }
 
     fun loadSample(view: View) {
         GlobalScope.launch(Dispatchers.IO) {
-            girlBitmap = BitmapUtils.getBitmap(this@BitmapActivity.resources, R.drawable.icon_girl, imageView.width, imageView.height)
+            girlBitmap = BitmapUtils.getBitmap(this@BitmapActivity.resources, R.drawable.icon_girl, binding.imageView.width, binding.imageView.height)
             if (null != girlBitmap) {
                 runOnUiThread {
-                    imageView.setImageBitmap(girlBitmap)
+                    binding.imageView.setImageBitmap(girlBitmap)
                 }
             }
         }

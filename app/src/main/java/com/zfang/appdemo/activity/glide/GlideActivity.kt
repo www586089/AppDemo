@@ -7,6 +7,7 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageView
 import android.widget.Toast
@@ -27,10 +28,10 @@ import com.zfang.appdemo.activity.glide.progress.ProgressInterceptor
 import com.zfang.appdemo.activity.glide.progress.ProgressListener
 import com.zfang.appdemo.activity.glide.transform.CircleCrop
 import com.zfang.appdemo.base.BaseActivity
+import com.zfang.appdemo.databinding.ActivityGlideBinding
 import com.zfang.appdemo.view.glide.MyLayout
 import jp.wasabeef.glide.transformations.BlurTransformation
 import jp.wasabeef.glide.transformations.GrayscaleTransformation
-import kotlinx.android.synthetic.main.activity_glide.*
 import java.io.File
 import kotlin.concurrent.thread
 
@@ -47,11 +48,13 @@ class GlideActivity  : BaseActivity() {
         }
     }
 
+    private lateinit var binding: ActivityGlideBinding
     private lateinit var progressDialog: ProgressDialog
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_glide)
+        binding = ActivityGlideBinding.inflate(LayoutInflater.from(this))
+        setContentView(binding.root)
         initToolbar(title = "Glide用法")
         init()
     }
@@ -70,7 +73,7 @@ class GlideActivity  : BaseActivity() {
             .load(R.drawable.image_local)
 //            .fitCenter()
             .bitmapTransform(CircleCrop(this), BlurTransformation(this), GrayscaleTransformation(this))
-            .into(imageView)
+            .into(binding.imageView)
     }
 
     fun loadImagePlaceHolder(view: View) {
@@ -79,7 +82,7 @@ class GlideActivity  : BaseActivity() {
             .placeholder(loading)
             .error(error)
             .diskCacheStrategy(DiskCacheStrategy.NONE)
-            .into(imageView);
+            .into(binding.imageView)
     }
 
     fun loadGif(view: View) {
@@ -94,7 +97,7 @@ class GlideActivity  : BaseActivity() {
             .placeholder(loading)
             .error(error)
             .diskCacheStrategy(DiskCacheStrategy.NONE)
-            .into(imageView);
+            .into(binding.imageView);
     }
 
     private fun loadAsGif(url: String) {
@@ -116,7 +119,7 @@ class GlideActivity  : BaseActivity() {
             .load(url)
             .diskCacheStrategy(DiskCacheStrategy.NONE)
             .override(Target.SIZE_ORIGINAL, Target.SIZE_ORIGINAL)
-            .into(object: GlideDrawableImageViewTarget(imageView) {
+            .into(object: GlideDrawableImageViewTarget(binding.imageView) {
                 override fun onLoadStarted(placeholder: Drawable?) {
                     super.onLoadStarted(placeholder)
                     progressDialog.show();
@@ -129,7 +132,7 @@ class GlideActivity  : BaseActivity() {
                 }
             })
     }
-    
+
     fun loadWithConstraint(view: View) {
 //        val url = "https://img2.baidu.com/it/u=1002466511,344372075&fm=253&fmt=auto&app=138&f=JPEG?w=800&h=500"
 //        val url = "https://img2.baidu.com/it/u=1803383139,3209928988&fm=253&fmt=auto&app=138&f=JPEG?w=500&h=602"
@@ -141,7 +144,7 @@ class GlideActivity  : BaseActivity() {
             .error(error)
             .diskCacheStrategy(DiskCacheStrategy.NONE)
             .override(300, 300)
-            .into(imageView)
+            .into(binding.imageView)
     }
 
     fun loadImageViewTarget(view: View) {
@@ -188,7 +191,7 @@ class GlideActivity  : BaseActivity() {
         Glide.with(this)
             .load(url)
             .diskCacheStrategy(DiskCacheStrategy.SOURCE)
-            .into(imageView)
+            .into(binding.imageView)
     }
 
     fun loadWithListener(view: View) {
@@ -204,7 +207,7 @@ class GlideActivity  : BaseActivity() {
                     return false
                 }
             })
-            .into(imageView)
+            .into(binding.imageView)
     }
 
     fun downloadOnly(view: View) {

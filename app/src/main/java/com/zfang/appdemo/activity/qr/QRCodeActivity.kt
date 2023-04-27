@@ -5,11 +5,12 @@ import android.content.Intent
 import android.graphics.BitmapFactory
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
 import com.yun.utils.image.QRCodeUtil
 import com.zfang.appdemo.R
 import com.zfang.appdemo.base.BaseActivity
-import kotlinx.android.synthetic.main.activity_qr_code.*
+import com.zfang.appdemo.databinding.ActivityQrCodeBinding
 
 class QRCodeActivity : BaseActivity() {
     companion object {
@@ -18,9 +19,12 @@ class QRCodeActivity : BaseActivity() {
         }
     }
 
+    private lateinit var binding: ActivityQrCodeBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_qr_code)
+        binding = ActivityQrCodeBinding.inflate(LayoutInflater.from(this))
+        setContentView(binding.root)
         initToolbar(title = "QRCode")
     }
 
@@ -44,7 +48,7 @@ class QRCodeActivity : BaseActivity() {
             val qrLeft = (0.325 * viewWidth).toFloat()
             val qrTop = (0.745 * viewHeight).toFloat()
             val resultBitmap = QRCodeUtil.mergeBitmap(this, originBitmap, qrWithLogoBitmap, qrLeft, qrTop, textX, textY)
-            qrImage.setImageBitmap(resultBitmap)
+            binding.qrImage.setImageBitmap(resultBitmap)
         }
     }
 
@@ -57,7 +61,7 @@ class QRCodeActivity : BaseActivity() {
 
         val qrWidth = qrConfigBean.qrCodeArea.width
         val qrHeight = qrConfigBean.qrCodeArea.height
-        val logoBitmap = BitmapFactory.decodeResource(resources, R.drawable.ic_launcher)
+        val logoBitmap = BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher)
         val qrCodeBitmap = QRCodeUtil.createQRCodeBitmap(this, qrConfigBean.url, qrWidth, qrHeight)
         if (null != qrCodeBitmap) {
             val qrWithLogoBitmap = QRCodeUtil.addLogo2(qrCodeBitmap, logoBitmap)
@@ -68,7 +72,7 @@ class QRCodeActivity : BaseActivity() {
             val qrLeft = qrConfigBean.qrCodeArea.positionX.toFloat()
             val qrTop = qrConfigBean.qrCodeArea.positionY.toFloat()
             val resultBitmap = QRCodeUtil.mergeBitmap(this, originBitmap, qrWithLogoBitmap, qrLeft, qrTop, textX, textY)
-            qrImage.setImageBitmap(resultBitmap)
+            binding.qrImage.setImageBitmap(resultBitmap)
         }
     }
 }

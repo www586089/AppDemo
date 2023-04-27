@@ -5,14 +5,14 @@ import android.content.Intent
 import android.graphics.RectF
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.View
-import com.zfang.appdemo.R
 import com.zfang.appdemo.activity.surfaceview.packet.PacketManager
 import com.zfang.appdemo.base.BaseActivity
 import com.zfang.appdemo.common.px2Dp
+import com.zfang.appdemo.databinding.ActivityRedPackRainBinding
 import com.zfang.appdemo.utils.getScreenHeight
 import com.zfang.appdemo.utils.getScreenWidth
-import kotlinx.android.synthetic.main.activity_red_pack_rain.*
 
 class RedPackRainActivity: BaseActivity() {
     companion object {
@@ -22,15 +22,17 @@ class RedPackRainActivity: BaseActivity() {
         }
     }
 
+    private lateinit var binding: ActivityRedPackRainBinding
     private var surfaceLocation: IntArray = IntArray(2)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_red_pack_rain)
+        binding = ActivityRedPackRainBinding.inflate(LayoutInflater.from(this))
+        setContentView(binding.root)
         initToolbar(title = "红包雨")
-        packetView.post {
-            packetView.getLocationOnScreen(surfaceLocation)
-            Log.d(TAG, "width = ${packetView.width}, height = ${packetView.height}, left = ${surfaceLocation[0]}, top = ${surfaceLocation[1]}")
+        binding.packetView.post {
+            binding.packetView.getLocationOnScreen(surfaceLocation)
+            Log.d(TAG, "width = ${binding.packetView.width}, height = ${binding.packetView.height}, left = ${surfaceLocation[0]}, top = ${surfaceLocation[1]}")
         }
     }
 
@@ -42,14 +44,14 @@ class RedPackRainActivity: BaseActivity() {
 
         val bottomViewHeight = 100.px2Dp(this)
         val bottomDisappearHeight = 80.px2Dp(this)
-        val viewHeight = packetView.height.toFloat()
+        val viewHeight = binding.packetView.height.toFloat()
         val endRegion = RectF(0f + offset, viewHeight - (bottomViewHeight + bottomDisappearHeight), width - offset, viewHeight - bottomViewHeight)
         PacketManager.generateAnimationItem(this, "12", startRegion, endRegion, packetCount = 32, 75f)
         PacketManager.startRainAnimation(object : PacketManager.RainAnimationEnd {
             override fun onEnd() {
-                packetView.stopDrawing()
+                binding.packetView.stopDrawing()
             }
         })
-        packetView.startDrawing()
+        binding.packetView.startDrawing()
     }
 }

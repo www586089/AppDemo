@@ -3,8 +3,9 @@ package com.zfang.appdemo.activity.view.drag
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import com.zfang.appdemo.R
+import android.view.LayoutInflater
 import com.zfang.appdemo.base.BaseActivity
+import com.zfang.appdemo.databinding.ActivityDragSwapBinding
 
 class DragSwapActivity : BaseActivity() {
 
@@ -15,9 +16,11 @@ class DragSwapActivity : BaseActivity() {
 
         private const val TAG = "DragSwapActivity"
     }
+    private lateinit var binding: ActivityDragSwapBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_drag_swap)
+        binding = ActivityDragSwapBinding.inflate(LayoutInflater.from(this))
+        setContentView(binding.root)
         initToolbar(title = "ViewDrag(DragSwapActivity)")
     }
 }

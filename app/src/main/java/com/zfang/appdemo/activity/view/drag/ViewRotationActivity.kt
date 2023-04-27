@@ -4,10 +4,10 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.LayoutInflater
 import android.widget.SeekBar
-import com.zfang.appdemo.R
 import com.zfang.appdemo.base.BaseActivity
-import kotlinx.android.synthetic.main.activity_view_rotation.*
+import com.zfang.appdemo.databinding.ActivityViewRotationBinding
 
 class ViewRotationActivity : BaseActivity() {
 
@@ -18,22 +18,26 @@ class ViewRotationActivity : BaseActivity() {
 
         private const val TAG = "ViewRotationActivity"
     }
+
+    private lateinit var binding: ActivityViewRotationBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_view_rotation)
+        binding = ActivityViewRotationBinding.inflate(LayoutInflater.from(this))
+        setContentView(binding.root)
         initToolbar(title = "View旋转")
         init()
     }
 
     private fun init() {
-        seek_bar.max = 100
-        seek_bar.min = 0
-        seek_bar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
+        binding.seekBar.max = 100
+        binding.seekBar.min = 0
+        binding.seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
                 if (fromUser) {
                     val rotation = (progress - 50).toFloat()
                     Log.e(TAG, "rotation = $rotation")
-                    frame.rotation = rotation
+                    binding.frame.rotation = rotation
                 }
             }
 
