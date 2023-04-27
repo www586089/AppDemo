@@ -9,8 +9,8 @@ import com.zfang.appdemo.activity.qr.QRCodeActivity
 import com.zfang.appdemo.activity.view.ViewOpActivity
 import com.zfang.appdemo.activity.view.drag.ViewDragActivity
 import com.zfang.appdemo.activity.window.PopWindowActivity
-import com.zfang.appdemo.test.glide.testException
 
+//github token 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
 class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,8 +19,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     fun onClickMatrix(view: View) {
-//        MatrixActivity.start(this)
-        testException()
+        MatrixActivity.start(this)
+//        testException()
     }
 
     fun onClickPathEffect(view: View) {

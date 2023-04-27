@@ -12,23 +12,25 @@ class BasicMatrixView(context: Context?, attrs: AttributeSet?) : View(context, a
         R.drawable.home_car_instalment
     )
     private var bitmapMatrix: Matrix = Matrix()
-    private var bitmapPaint: Paint? = null
+    private var bitmapPaint: Paint = Paint()
     private var canvasWidth: Int = 0
     private var canvasHeight: Int = 0
     private var bitmapWidth = 0
     private var bitmapHeight = 0
 
     init {
-        bitmapPaint = Paint()
         bitmapWidth = bitmap.width
         bitmapHeight = bitmap.height
     }
+
     override fun onDraw(canvas: Canvas?) {
         super.onDraw(canvas)
-        canvas!!.drawBitmap(bitmap, bitmapMatrix, bitmapPaint)
+        canvas?.apply {
+            drawBitmap(bitmap, bitmapMatrix, bitmapPaint)
 
-        bitmapMatrix.reset()
-        canvas.drawBitmap(bitmap, bitmapMatrix, bitmapPaint)
+            bitmapMatrix.reset()
+            drawBitmap(bitmap, bitmapMatrix, bitmapPaint)
+        }
     }
 
     override fun onMeasure(widthMeasureSpec: Int, heightMeasureSpec: Int) {
@@ -40,7 +42,7 @@ class BasicMatrixView(context: Context?, attrs: AttributeSet?) : View(context, a
             //重置为单位矩阵，否则后面的计算将会无效
             bitmapMatrix.reset()
             /**
-             * 把绘制坐标移动到响应计算出来的点使得绘制出来的图像是整体居中显示的
+             * 把绘制坐标移动到相应应计算出来的点使得绘制出来的图像是整体居中显示的
              * setTranslate也可以移动中心
              */
             bitmapMatrix.postTranslate(((canvasWidth - bitmapWidth) / 2).toFloat(), ((canvasHeight - bitmapHeight) / 2).toFloat())
