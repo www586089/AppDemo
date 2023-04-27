@@ -51,4 +51,7 @@ dependencies {
 
     implementation 'io.reactivex:rxjava:1.2.1'
     implementation 'io.reactivex:rxandroid:1.2.1'
+
+    //zxing库引入
+    implementation 'com.google.zxing:core:3.4.1'
 }

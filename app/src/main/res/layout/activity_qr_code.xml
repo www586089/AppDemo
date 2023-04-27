@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.qr.QRCodeActivity">
+
+    <androidx.appcompat.widget.AppCompatImageView
+        android:id="@+id/qrImage"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:src="@drawable/haibao_logo" />
+
+    <View
+        android:id="@+id/logo"
+        android:layout_width="143dp"
+        android:layout_height="20dp"
+        android:layout_marginStart="135dp"
+        android:layout_marginTop="545dp"
+        android:background="#67c"
+        android:visibility="invisible"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.constraintlayout.widget.Guideline
+        android:id="@+id/center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.52"/>
+    <View
+        android:layout_width="0dp"
+        android:layout_height="1dp"
+        android:background="#67c8ff"
+        app:layout_constraintTop_toTopOf="@id/center"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"/>
+    <View
+        android:id="@+id/text"
+        android:layout_width="wrap_content"
+        android:layout_height="20dp"
+        android:layout_marginStart="140dp"
+        android:layout_marginTop="370dp"
+        android:background="#67c"
+        android:visibility="invisible"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/genQRCode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="24dp"
+        android:layout_marginBottom="24dp"
+        android:background="#67c"
+        android:onClick="genQRCode"
+        android:paddingHorizontal="12dp"
+        android:paddingVertical="8dp"
+        android:text="生存海报"
+        android:textSize="16sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity
 import com.zfang.appdemo.activity.*
 import com.zfang.appdemo.activity.bitmap.BitmapActivity
 import com.zfang.appdemo.activity.matrix.*
+import com.zfang.appdemo.activity.qr.QRCodeActivity
 import com.zfang.appdemo.activity.view.ViewOpActivity
 import com.zfang.appdemo.activity.view.drag.ViewDragActivity
 import com.zfang.appdemo.receiver.HomeWatcherReceiver
@@ -100,5 +101,9 @@ class MainActivity : AppCompatActivity() {
 
     fun onClickBitmap(view: View) {
         BitmapActivity.startActivity(this)
+    }
+
+    fun onClickQR(view: View) {
+        QRCodeActivity.start(this)
     }
 }
