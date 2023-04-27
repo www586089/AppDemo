@@ -33,7 +33,7 @@ class RedPacketView(val ctx: Context, attributeSet: AttributeSet): SurfaceView(c
     private var gestureDetector: GestureDetector
     private var path = Path()
     private val gestureListener = object : GestureDetector.OnGestureListener {
-        override fun onDown(event: MotionEvent?): Boolean {
+        override fun onDown(event: MotionEvent): Boolean {
             Log.d(TAG, "onDown")
 
             val result = judgeClick(event)
@@ -41,25 +41,25 @@ class RedPacketView(val ctx: Context, attributeSet: AttributeSet): SurfaceView(c
             return result
         }
 
-        override fun onShowPress(event: MotionEvent?) {
+        override fun onShowPress(event: MotionEvent) {
             Log.d(TAG, "onShowPress")
         }
 
-        override fun onSingleTapUp(event: MotionEvent?): Boolean {
+        override fun onSingleTapUp(event: MotionEvent): Boolean {
             Log.d(TAG, "onSingleTapUp")
             return false
         }
 
-        override fun onScroll(p0: MotionEvent?, p1: MotionEvent?, distanceX: Float, distanceY: Float): Boolean {
+        override fun onScroll(p0: MotionEvent, p1: MotionEvent, distanceX: Float, distanceY: Float): Boolean {
             Log.d(TAG, "onScroll")
             return false
         }
 
-        override fun onLongPress(p0: MotionEvent?) {
+        override fun onLongPress(p0: MotionEvent) {
             Log.d(TAG, "onLongPress")
         }
 
-        override fun onFling(p0: MotionEvent?, p1: MotionEvent?, p2: Float, p3: Float): Boolean {
+        override fun onFling(p0: MotionEvent, p1: MotionEvent, p2: Float, p3: Float): Boolean {
             Log.d(TAG, "onFling")
             return false
         }
@@ -133,7 +133,7 @@ class RedPacketView(val ctx: Context, attributeSet: AttributeSet): SurfaceView(c
     }
 
 
-    override fun onTouch(view: View?, event: MotionEvent?): Boolean {
+    override fun onTouch(view: View?, event: MotionEvent): Boolean {
         return gestureDetector.onTouchEvent(event)
     }
 

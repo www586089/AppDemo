@@ -137,7 +137,7 @@ class DragViewGroup(context: Context, attributeSet: AttributeSet): FrameLayout(c
             val animationSet = AnimatorSet()
             animationSet.play(animatorX).with(animatorY)
             animationSet.addListener(object : AnimatorListenerAdapter() {
-                override fun onAnimationEnd(animation: Animator?) {
+                override fun onAnimationEnd(animation: Animator) {
                     Log.e("zfang", "mDragViewOriginLeft = $mDragViewOriginLeft, mDragViewOriginTop = $mDragViewOriginTop")
                     dragState = DragState.None
                     dragView = null

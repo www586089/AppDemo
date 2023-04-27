@@ -258,7 +258,7 @@ class DragSwapViewGroup(ctx: Context, attrs: AttributeSet): ConstraintLayout(ctx
                 interpolator = AnticipateOvershootInterpolator()
                 play(settleSwapX).with(settleSwapY)
                 addListener(object : AnimatorListenerAdapter() {
-                    override fun onAnimationEnd(animation: Animator?) {
+                    override fun onAnimationEnd(animation: Animator) {
                         swapView.apply {
                             (swapView as AppCompatImageView).setImageDrawable(dragDrawable)
                             dragDrawable = null
@@ -294,7 +294,7 @@ class DragSwapViewGroup(ctx: Context, attrs: AttributeSet): ConstraintLayout(ctx
                 interpolator = AnticipateOvershootInterpolator()
                 play(settleSwapX).with(settleSwapY)
                 addListener(object : AnimatorListenerAdapter() {
-                    override fun onAnimationEnd(animation: Animator?) {
+                    override fun onAnimationEnd(animation: Animator) {
                         dragView?.apply {
                             (dragView as AppCompatImageView).setImageDrawable(swapBitmapDrawable)
                             swapBitmapDrawable = null
@@ -332,7 +332,7 @@ class DragSwapViewGroup(ctx: Context, attrs: AttributeSet): ConstraintLayout(ctx
         animatorSet.interpolator = AnticipateOvershootInterpolator()
         animatorSet.play(settleOriginX).with(settleOriginY)
         animatorSet.addListener(object : AnimatorListenerAdapter() {
-            override fun onAnimationEnd(animation: Animator?) {
+            override fun onAnimationEnd(animation: Animator) {
                 dragView?.apply {
                     dragDrawable = null
                     invalidate()
