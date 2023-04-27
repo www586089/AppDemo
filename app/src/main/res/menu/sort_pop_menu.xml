@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/time_sort"
+        android:title="时间排序"
+        android:actionLayout="@layout/sort_item_layout"/>
+    <item
+        android:id="@+id/intimacy_sort"
+        android:title="亲密度排序" />
+</menu>

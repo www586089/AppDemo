@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="140dp"
+    android:layout_height="98.5dp"
+    android:background="@drawable/sort_view_bg">
+
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/sort_time"
+        android:layout_width="0dp"
+        android:layout_height="32dp"
+        android:layout_marginHorizontal="11dp"
+        android:layout_marginTop="4dp"
+        android:background="@drawable/bg_intimacy_msg_sort"
+        android:clickable="true"
+        android:gravity="center"
+        android:text="时间排序"
+        android:textColor="@android:color/white"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toTopOf="@+id/sort_intimacy"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_chainStyle="packed" />
+
+    <View
+        android:layout_width="1dp"
+        android:layout_height="42dp"
+        android:layout_marginEnd="41dp"
+        android:background="#67c"
+        android:visibility="gone"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.appcompat.widget.AppCompatTextView
+        android:id="@+id/sort_intimacy"
+        android:layout_width="0dp"
+        android:layout_height="32dp"
+        android:layout_marginHorizontal="11dp"
+        android:gravity="center"
+        android:text="亲密度排序"
+        android:textColor="#333333"
+        android:textSize="12sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/sort_time" />
+</androidx.constraintlayout.widget.ConstraintLayout>

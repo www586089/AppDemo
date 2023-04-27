@@ -64,6 +64,8 @@
         <activity android:name=".activity.SurfaceViewActivity"/>
         <activity android:name=".activity.surfaceview.RedPackRainActivity"/>
         <activity android:name=".activity.bitmap.BitmapActivity"/>
+        <activity android:name=".activity.window.PopWindowActivity"/>
+        <activity android:name=".activity.qr.QRCodeActivity"/>
     </application>
 
 </manifest>
