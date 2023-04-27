@@ -68,6 +68,7 @@
         <activity android:name=".activity.window.PopWindowActivity"/>
         <activity android:name=".activity.qr.QRCodeActivity"/>
         <activity android:name=".activity.glide.GlideActivity"/>
+        <activity android:name=".activity.list.RecyclerViewActivity"/>
     </application>
 
 </manifest>

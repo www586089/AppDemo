@@ -209,10 +209,25 @@
         android:onClick="onClickGlide"
         android:text="Glide"
         android:textColor="@android:color/white"
-        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/recyclerView"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toBottomOf="@id/qrCode" />
+    <TextView
+        android:id="@+id/recyclerView"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:background="@drawable/round_bg_corner_5dp"
+        android:gravity="center"
+        android:minWidth="80dp"
+        android:onClick="onClickRecycler"
+        android:text="RecyclerView"
+        android:textColor="@android:color/white"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@id/glide" />
     <TextView
         android:id="@+id/test"
         android:layout_width="wrap_content"

@@ -72,7 +72,7 @@ class RedPacketView(val ctx: Context, attributeSet: AttributeSet): SurfaceView(c
         initBitmap()
     }
 
-    private fun judgeClick(event: MotionEvent?): Boolean {
+    private fun judgeClick(event: MotionEvent): Boolean {
         if (null == event) {
             return false
         }
@@ -133,7 +133,7 @@ class RedPacketView(val ctx: Context, attributeSet: AttributeSet): SurfaceView(c
     }
 
 
-    override fun onTouch(view: View?, event: MotionEvent): Boolean {
+    override fun onTouch(view: View, event: MotionEvent): Boolean {
         return gestureDetector.onTouchEvent(event)
     }
 
@@ -247,10 +247,10 @@ class RedPacketView(val ctx: Context, attributeSet: AttributeSet): SurfaceView(c
         }
 
         override fun surfaceChanged(
-                holder: SurfaceHolder,
-                format: Int,
-                width: Int,
-                height: Int
+            holder: SurfaceHolder,
+            format: Int,
+            width: Int,
+            height: Int
         ) {
             Log.d(TAG, "surfaceChanged")
         }

@@ -5,6 +5,7 @@ import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import com.zfang.appdemo.activity.*
 import com.zfang.appdemo.activity.glide.GlideActivity
+import com.zfang.appdemo.activity.list.RecyclerViewActivity
 import com.zfang.appdemo.activity.matrix.*
 import com.zfang.appdemo.activity.qr.QRCodeActivity
 import com.zfang.appdemo.activity.view.ViewOpActivity
@@ -82,5 +83,9 @@ class MainActivity : AppCompatActivity() {
 
     fun onClickGlide(view: View) {
         GlideActivity.start(this)
+    }
+
+    fun onClickRecycler(view: View) {
+        RecyclerViewActivity.start(this)
     }
 }
