@@ -1,0 +1,1113 @@
+    1..... load
+    public DrawableTypeRequest<String> load(String string) {
+        return (DrawableTypeRequest<String>) fromString().load(string);
+    }
+    ->
+        (1. fromString ----->
+        //DrawableTypeRequest ----> DrawableRequestBuilder ----> GenericRequestBuilder
+        public DrawableTypeRequest<String> fromString() {
+            return loadGeneric(String.class);
+        }
+        private <T> DrawableTypeRequest<T> loadGeneric(Class<T> modelClass) {
+            //StreamStringLoader
+            ModelLoader<T, InputStream> streamModelLoader = Glide.buildStreamModelLoader(modelClass, context);
+            //FileDescriptorStringLoader
+            ModelLoader<T, ParcelFileDescriptor> fileDescriptorModelLoader =
+                    Glide.buildFileDescriptorModelLoader(modelClass, context);
+            if (modelClass != null && streamModelLoader == null && fileDescriptorModelLoader == null) {
+                throw new IllegalArgumentException("Unknown type " + modelClass + ". You must provide a Model of a type for"
+                        + " which there is a registered ModelLoader, if you are using a custom model, you must first call"
+                        + " Glide#register with a ModelLoaderFactory for your custom model class");
+            }
+
+            //DrawableTypeRequest
+            return optionsApplier.apply(
+                    new DrawableTypeRequest<T>(modelClass, streamModelLoader, fileDescriptorModelLoader, context,
+                            glide, requestTracker, lifecycle, optionsApplier));
+        }
+        //DrawableTypeRequest.java
+        DrawableTypeRequest(Class<ModelType> modelClass, ModelLoader<ModelType, InputStream> streamModelLoader,
+                ModelLoader<ModelType, ParcelFileDescriptor> fileDescriptorModelLoader, Context context, Glide glide,
+                RequestTracker requestTracker, Lifecycle lifecycle, RequestManager.OptionsApplier optionsApplier) {
+            //modelClass ----> String::class
+            //streamModelLoader ----> StreamStringLoader
+            //fileDescriptorModelLoader ----> FileDescriptorStringLoader
+            //------> 1.2)
+            super(context, modelClass,
+                    buildProvider(glide, streamModelLoader, fileDescriptorModelLoader, GifBitmapWrapper.class, GlideDrawable.class, null), //---->1.1)
+                    glide, requestTracker, lifecycle);
+            this.streamModelLoader = streamModelLoader;
+            this.fileDescriptorModelLoader = fileDescriptorModelLoader;
+            this.optionsApplier = optionsApplier;
+        }
+        -->
+        //---->1.1)
+        //DrawableTypeRequest.java
+        private static <A, Z, R> FixedLoadProvider<A, ImageVideoWrapper, Z, R> buildProvider(Glide glide,
+                ModelLoader<A, InputStream> streamModelLoader,
+                ModelLoader<A, ParcelFileDescriptor> fileDescriptorModelLoader, Class<Z> resourceClass,
+                Class<R> transcodedClass,
+                ResourceTranscoder<Z, R> transcoder) {
+            if (streamModelLoader == null && fileDescriptorModelLoader == null) {
+                return null;
+            }
+
+            if (transcoder == null) {//run this code
+                // resourceClass -> GifBitmapWrapper.class     transcodedClass -> GlideDrawable.class
+                // return GifBitmapWrapperDrawableTranscoder
+                transcoder = glide.buildTranscoder(resourceClass, transcodedClass);
+            }
+            //dataLoadProvider ----> ImageVideoGifDrawableLoadProvider
+            DataLoadProvider<ImageVideoWrapper, Z> dataLoadProvider = glide.buildDataProvider(ImageVideoWrapper.class, resourceClass);
+            ImageVideoModelLoader<A> modelLoader = new ImageVideoModelLoader<A>(streamModelLoader, fileDescriptorModelLoader);
+            return new FixedLoadProvider<A, ImageVideoWrapper, Z, R>(modelLoader, transcoder, dataLoadProvider);
+        }
+
+        //ImageVideoGifDrawableLoadProvider.java
+        //bitmapProvider -> ImageVideoDataLoadProvider, gifProvider -> GifDrawableLoadProvider
+        public ImageVideoGifDrawableLoadProvider(DataLoadProvider<ImageVideoWrapper, Bitmap> bitmapProvider,
+                DataLoadProvider<InputStream, GifDrawable> gifProvider, BitmapPool bitmapPool) {
+
+            final GifBitmapWrapperResourceDecoder decoder = new GifBitmapWrapperResourceDecoder(
+                    bitmapProvider.getSourceDecoder(),
+                    gifProvider.getSourceDecoder(),
+                    bitmapPool
+            );
+            cacheDecoder = new FileToStreamDecoder<GifBitmapWrapper>(new GifBitmapWrapperStreamResourceDecoder(decoder));
+            sourceDecoder = decoder;
+            encoder = new GifBitmapWrapperResourceEncoder(bitmapProvider.getEncoder(), gifProvider.getEncoder());
+
+            //TODO: what about the gif provider?
+            sourceEncoder = bitmapProvider.getSourceEncoder();
+        }
+
+        //FixedLoadProvider.java
+        public FixedLoadProvider(ModelLoader<A, T> modelLoader, ResourceTranscoder<Z, R> transcoder,
+                DataLoadProvider<T, Z> dataLoadProvider) {
+            if (modelLoader == null) {
+                throw new NullPointerException("ModelLoader must not be null");
+            }
+            this.modelLoader = modelLoader;    //ImageVideoModelLoader
+
+            if (transcoder == null) {
+                throw new NullPointerException("Transcoder must not be null");
+            }
+            this.transcoder = transcoder;    //GifBitmapWrapperDrawableTranscoder
+
+            if (dataLoadProvider == null) {
+                throw new NullPointerException("DataLoadProvider must not be null");
+            }
+            this.dataLoadProvider = dataLoadProvider;  //ImageVideoGifDrawableLoadProvider
+        }
+        //ImageVideoModelLoader.java
+        public ImageVideoModelLoader(ModelLoader<A, InputStream> streamLoader,
+                ModelLoader<A, ParcelFileDescriptor> fileDescriptorLoader) {
+            if (streamLoader == null && fileDescriptorLoader == null) {
+                throw new NullPointerException("At least one of streamLoader and fileDescriptorLoader must be non null");
+            }
+            this.streamLoader = streamLoader;                    //StreamStringLoader
+            this.fileDescriptorLoader = fileDescriptorLoader;    //FileDescriptorStringLoader
+        }
+
+        -->
+        //------> 1.2)
+        //DrawableRequestBuilder.java
+        DrawableRequestBuilder(Context context, Class<ModelType> modelClass,
+                LoadProvider<ModelType, ImageVideoWrapper, GifBitmapWrapper, GlideDrawable> loadProvider, Glide glide,
+                RequestTracker requestTracker, Lifecycle lifecycle) {
+            //   context
+            super(context, modelClass, loadProvider, GlideDrawable.class, glide, requestTracker, lifecycle);
+            // Default to animating.
+            crossFade();
+        }
+
+        //GenericRequestBuilder.java
+        GenericRequestBuilder(Context context, Class<ModelType> modelClass,
+                //ModelType -> String, DataType -> ImageVideoWrapper, ResourceType -> GifBitmapWrapper, TranscodeType -> GlideDrawable
+                LoadProvider<ModelType, DataType, ResourceType, TranscodeType> loadProvider,//----> FixedLoadProvider
+                Class<TranscodeType> transcodeClass, Glide glide, RequestTracker requestTracker, Lifecycle lifecycle) {
+            this.context = context;
+            this.modelClass = modelClass;            //String.class
+            this.transcodeClass = transcodeClass;    //GlideDrawable.class
+            this.glide = glide;
+            this.requestTracker = requestTracker;
+            this.lifecycle = lifecycle;
+            //loadProvider ----> ChildLoadProvider
+            this.loadProvider = loadProvider != null ? new ChildLoadProvider<ModelType, DataType, ResourceType, TranscodeType>(loadProvider) : null;
+
+            if (context == null) {
+                throw new NullPointerException("Context can't be null");
+            }
+            if (modelClass != null && loadProvider == null) {
+                throw new NullPointerException("LoadProvider must not be null");
+            }
+        }
+    ->
+        (2. load ------>
+        //DrawableRequestBuilder.java
+        @Override
+        public DrawableRequestBuilder<ModelType> load(ModelType model) {
+            super.load(model);
+            return this;
+        }
+
+
+        2.....into
+        Glide.with(this)
+            .load(url)
+            .placeholder(loading)
+            .into(imageView)
+        //DrawableRequestBuilder.java
+        @Override
+        public Target<GlideDrawable> into(ImageView view) {
+            return super.into(view);
+        }
+        //GenericRequestBuilder.java
+        public Target<TranscodeType> into(ImageView view) {
+            Util.assertMainThread();
+            if (view == null) {
+                throw new IllegalArgumentException("You must pass in a non null View");
+            }
+
+            if (!isTransformationSet && view.getScaleType() != null) {
+                switch (view.getScaleType()) {
+                    case CENTER_CROP:
+                        applyCenterCrop();
+                        break;
+                    case FIT_CENTER:
+                    case FIT_START:
+                    case FIT_END:
+                        applyFitCenter();
+                        break;
+                    //$CASES-OMITTED$
+                    default:
+                        // Do nothing.
+                }
+            }
+                                                         //GlideDrawable.class
+            return into(glide.buildImageViewTarget(view, transcodeClass));
+                 //into(new GlideDrawableImageViewTarget(view));
+        }
+
+        ->
+        //1)--->buildImageViewTarget
+        //Glide.java
+        <R> Target<R> buildImageViewTarget(ImageView imageView, Class<R> transcodedClass) {
+            return imageViewTargetFactory.buildTarget(imageView, transcodedClass);
+        }
+        public class ImageViewTargetFactory {
+
+            @SuppressWarnings("unchecked")
+            public <Z> Target<Z> buildTarget(ImageView view, Class<Z> clazz) {
+                if (GlideDrawable.class.isAssignableFrom(clazz)) {
+                    return (Target<Z>) new GlideDrawableImageViewTarget(view); //clazz为GlideDrawable.class------>
+                } else if (Bitmap.class.equals(clazz)) {
+                    return (Target<Z>) new BitmapImageViewTarget(view);
+                } else if (Drawable.class.isAssignableFrom(clazz)) {
+                    return (Target<Z>) new DrawableImageViewTarget(view);
+                } else {
+                    throw new IllegalArgumentException("Unhandled class: " + clazz
+                            + ", try .as*(Class).transcode(ResourceTranscoder)");
+                }
+            }
+        }
+        ->
+        //2)
+        GlideDrawableImageViewTarget ----> ImageViewTarget ----> ViewTarget ----> BaseTarget ----> Target ----> LifecycleListener
+        //GenericRequestBuilder.java
+        //                                                GlideDrawableImageViewTarget
+        public <Y extends Target<TranscodeType>> Y into(Y target) {
+            Util.assertMainThread();
+            if (target == null) {
+                throw new IllegalArgumentException("You must pass in a non null Target");
+            }
+            if (!isModelSet) {
+                throw new IllegalArgumentException("You must first set a model (try #load())");
+            }
+
+            Request previous = target.getRequest();      //......2.1)
+
+            if (previous != null) {
+                previous.clear();
+                requestTracker.removeRequest(previous);
+                previous.recycle();
+            }
+
+            Request request = buildRequest(target);      //........2.2)
+            target.setRequest(request);
+            lifecycle.addListener(target);
+            //requestTracker -> RequestTracker
+            requestTracker.runRequest(request);          //........2.3)
+
+            return target;
+        }
+        ->
+        //......2.1)
+        //ViewTarget.java
+        public Request getRequest() {
+            Object tag = getTag();
+            Request request = null;
+            if (tag != null) {
+                if (tag instanceof Request) {
+                    request = (Request) tag;
+                } else {
+                    throw new IllegalArgumentException("You must not call setTag() on a view Glide is targeting");
+                }
+            }
+            return request;
+        }
+        //........2.2)
+        //GenericRequestBuilder.java
+        private Request buildRequest(Target<TranscodeType> target) {
+            if (priority == null) {
+                priority = Priority.NORMAL; // ----> run this code
+            }
+            //                           GlideDrawableImageViewTarget
+            return buildRequestRecursive(target, null);
+        }
+        //GenericRequestBuilder.java
+        private Request buildRequestRecursive(Target<TranscodeType> target, ThumbnailRequestCoordinator parentCoordinator) {
+            if (thumbnailRequestBuilder != null) {
+                //... ...
+                coordinator.setRequests(fullRequest, thumbRequest);
+                return coordinator;
+            } else if (thumbSizeMultiplier != null) {
+                //... ...
+                return coordinator;
+            } else {
+                //------> run this code
+                // Base case: no thumbnail.
+                //                               1.0f,        Normal,    null
+                return obtainRequest(target, sizeMultiplier, priority, parentCoordinator);
+            }
+        }
+        //GenericRequestBuilder.java
+        private Request obtainRequest(Target<TranscodeType> target, float sizeMultiplier, Priority priority,
+                RequestCoordinator requestCoordinator) {
+            return GenericRequest.obtain(
+                    loadProvider,            //ChildLoadProvider
+                    model,                   //String
+                    signature,               //EmptySignature
+                    context,
+                    priority,                //Normal
+                    target,                  //GlideDrawableImageViewTarget
+                    sizeMultiplier,          //1.0f
+                    placeholderDrawable,
+                    placeholderId,
+                    errorPlaceholder,
+                    errorId,
+                    fallbackDrawable,
+                    fallbackResource,
+                    requestListener,
+                    requestCoordinator,      //null
+                    glide.getEngine(),       //Engine
+                    transformation,
+                    transcodeClass,          //GlideDrawable.class
+                    isCacheable,
+                    animationFactory,
+                    overrideWidth,
+                    overrideHeight,
+                    diskCacheStrategy);
+        }
+        //GenericRequest.java
+        public static <A, T, Z, R> GenericRequest<A, T, Z, R> obtain(
+                LoadProvider<A, T, Z, R> loadProvider,
+                A model,
+                Key signature,
+                Context context,
+                Priority priority,
+                Target<R> target,
+                float sizeMultiplier,
+                Drawable placeholderDrawable,
+                int placeholderResourceId,
+                Drawable errorDrawable,
+                int errorResourceId,
+                Drawable fallbackDrawable,
+                int fallbackResourceId,
+                RequestListener<? super A, R> requestListener,
+                RequestCoordinator requestCoordinator,
+                Engine engine,
+                Transformation<Z> transformation,
+                Class<R> transcodeClass,
+                boolean isMemoryCacheable,
+                GlideAnimationFactory<R> animationFactory,
+                int overrideWidth,
+                int overrideHeight,
+                DiskCacheStrategy diskCacheStrategy) {
+            @SuppressWarnings("unchecked")
+            GenericRequest<A, T, Z, R> request = (GenericRequest<A, T, Z, R>) REQUEST_POOL.poll();
+            if (request == null) {
+                request = new GenericRequest<A, T, Z, R>();
+            }
+            request.init(loadProvider,
+                    model,
+                    signature,
+                    context,
+                    priority,
+                    target,
+                    sizeMultiplier,
+                    placeholderDrawable,
+                    placeholderResourceId,
+                    errorDrawable,
+                    errorResourceId,
+                    fallbackDrawable,
+                    fallbackResourceId,
+                    requestListener,
+                    requestCoordinator,
+                    engine,
+                    transformation,
+                    transcodeClass,
+                    isMemoryCacheable,
+                    animationFactory,
+                    overrideWidth,
+                    overrideHeight,
+                    diskCacheStrategy);
+            return request;
+        }
+        //GenericRequest.java
+        private void init(
+                LoadProvider<A, T, Z, R> loadProvider,
+                A model,
+                Key signature,
+                Context context,
+                Priority priority,
+                Target<R> target,
+                float sizeMultiplier,
+                Drawable placeholderDrawable,
+                int placeholderResourceId,
+                Drawable errorDrawable,
+                int errorResourceId,
+                Drawable fallbackDrawable,
+                int fallbackResourceId,
+                RequestListener<? super A, R> requestListener,
+                RequestCoordinator requestCoordinator,
+                Engine engine,
+                Transformation<Z> transformation,
+                Class<R> transcodeClass,
+                boolean isMemoryCacheable,
+                GlideAnimationFactory<R> animationFactory,
+                int overrideWidth,
+                int overrideHeight,
+                DiskCacheStrategy diskCacheStrategy) {
+            this.loadProvider = loadProvider;
+            this.model = model;
+            this.signature = signature;
+            this.fallbackDrawable = fallbackDrawable;
+            this.fallbackResourceId = fallbackResourceId;
+            this.context = context.getApplicationContext();
+            this.priority = priority;
+            this.target = target;
+            this.sizeMultiplier = sizeMultiplier;
+            this.placeholderDrawable = placeholderDrawable;
+            this.placeholderResourceId = placeholderResourceId;
+            this.errorDrawable = errorDrawable;
+            this.errorResourceId = errorResourceId;
+            this.requestListener = requestListener;
+            this.requestCoordinator = requestCoordinator;
+            this.engine = engine;
+            this.transformation = transformation;
+            this.transcodeClass = transcodeClass;
+            this.isMemoryCacheable = isMemoryCacheable;
+            this.animationFactory = animationFactory;
+            this.overrideWidth = overrideWidth;
+            this.overrideHeight = overrideHeight;
+            this.diskCacheStrategy = diskCacheStrategy;
+            status = Status.PENDING;
+
+            // We allow null models by just setting an error drawable. Null models will always have empty providers, we
+            // simply skip our sanity checks in that unusual case.
+            if (model != null) {
+                //... ...
+            }
+        }
+        ->
+        //........2.3)
+        //RequestTracker.java
+        public void runRequest(Request request) {
+            requests.add(request);
+            if (!isPaused) {
+                request.begin();
+            } else {
+                pendingRequests.add(request);
+            }
+        }
+        //GenericRequest.java
+        @Override
+        public void begin() {
+            startTime = LogTime.getLogTime();
+            if (model == null) {
+                onException(null);
+                return;
+            }
+
+            status = Status.WAITING_FOR_SIZE;
+            //这里的两个分支都会走到onSizeReady，所以直接看onSizeReady即可
+            if (Util.isValidDimensions(overrideWidth, overrideHeight)) {
+                onSizeReady(overrideWidth, overrideHeight); //---------> onSizeReady
+            } else {
+                target.getSize(this);
+            }
+
+            if (!isComplete() && !isFailed() && canNotifyStatusChanged()) {
+                target.onLoadStarted(getPlaceholderDrawable()); //---->onLoadStarted
+            }
+            if (Log.isLoggable(TAG, Log.VERBOSE)) {
+                logV("finished run method in " + LogTime.getElapsedMillis(startTime));
+            }
+        }
+        //------------>onSizeReady
+        //GenericRequest.java
+        @Override
+        public void onSizeReady(int width, int height) {
+            if (Log.isLoggable(TAG, Log.VERBOSE)) {
+                logV("Got onSizeReady in " + LogTime.getElapsedMillis(startTime));
+            }
+            if (status != Status.WAITING_FOR_SIZE) {
+                return;
+            }
+            status = Status.RUNNING;
+
+            width = Math.round(sizeMultiplier * width);
+            height = Math.round(sizeMultiplier * height);
+
+            //loadProvider -> ChildLoadProvider modelLoader -> ImageVideoModelLoader
+            ModelLoader<A, T> modelLoader = loadProvider.getModelLoader();
+            //model -> String  dataFetcher -> ImageVideoFetcher
+            final DataFetcher<T> dataFetcher = modelLoader.getResourceFetcher(model, width, height);//-------------->getResourceFetcher
+
+            if (dataFetcher == null) {
+                onException(new Exception("Failed to load model: \'" + model + "\'"));
+                return;
+            }
+            //transcoder -> GifBitmapWrapperDrawableTranscoder
+            ResourceTranscoder<Z, R> transcoder = loadProvider.getTranscoder();
+            if (Log.isLoggable(TAG, Log.VERBOSE)) {
+                logV("finished setup for calling load in " + LogTime.getElapsedMillis(startTime));
+            }
+            loadedFromMemoryCache = true;
+            loadStatus = engine.load(signature, width, height, dataFetcher, loadProvider, transformation, transcoder,    //---->load
+                    priority, isMemoryCacheable, diskCacheStrategy, this);
+            loadedFromMemoryCache = resource != null;
+            if (Log.isLoggable(TAG, Log.VERBOSE)) {
+                logV("finished onSizeReady in " + LogTime.getElapsedMillis(startTime));
+            }
+        }
+
+        //-------------->getResourceFetcher
+        //ImageVideoModelLoader.java
+        @Override
+        public DataFetcher<ImageVideoWrapper> getResourceFetcher(A model, int width, int height) {
+            DataFetcher<InputStream> streamFetcher = null;
+            if (streamLoader != null) {
+                //streamFetcher -> HttpUrlFetcher
+                streamFetcher = streamLoader.getResourceFetcher(model, width, height);
+            }
+            DataFetcher<ParcelFileDescriptor> fileDescriptorFetcher = null;
+            if (fileDescriptorLoader != null) {
+                // fileDescriptorFetcher -> null
+                fileDescriptorFetcher = fileDescriptorLoader.getResourceFetcher(model, width, height);
+            }
+
+            if (streamFetcher != null || fileDescriptorFetcher != null) {
+                return new ImageVideoFetcher(streamFetcher, fileDescriptorFetcher);
+            } else {
+                return null;
+            }
+        }
+
+        //ImageVideoFetcher.java
+        public ImageVideoFetcher(DataFetcher<InputStream> streamFetcher,
+                DataFetcher<ParcelFileDescriptor> fileDescriptorFetcher) {
+            this.streamFetcher = streamFetcher;                     //HttpUrlFetcher
+            this.fileDescriptorFetcher = fileDescriptorFetcher;     //null
+        }
+
+        //----------->load
+        //fetcher -> ImageVideoFetcher, loadProvider -> ChildLoadProvider, transcoder -> GifBitmapWrapperDrawableTranscoder
+        //Engine.java
+        public <T, Z, R> LoadStatus load(Key signature, int width, int height, DataFetcher<T> fetcher,
+                DataLoadProvider<T, Z> loadProvider, Transformation<Z> transformation, ResourceTranscoder<Z, R> transcoder,
+                Priority priority, boolean isMemoryCacheable, DiskCacheStrategy diskCacheStrategy, ResourceCallback cb) {
+            Util.assertMainThread();
+            long startTime = LogTime.getLogTime();
+
+            final String id = fetcher.getId();    //获取ID
+            EngineKey key = keyFactory.buildKey(id, signature, width, height, loadProvider.getCacheDecoder(),
+                    loadProvider.getSourceDecoder(), transformation, loadProvider.getEncoder(),
+                    transcoder, loadProvider.getSourceEncoder());
+
+            EngineResource<?> cached = loadFromCache(key, isMemoryCacheable);    //从缓存获取
+            if (cached != null) {
+                cb.onResourceReady(cached);
+                if (Log.isLoggable(TAG, Log.VERBOSE)) {
+                    logWithTimeAndKey("Loaded resource from cache", startTime, key);
+                }
+                return null;
+            }
+
+            EngineResource<?> active = loadFromActiveResources(key, isMemoryCacheable);//从活动资源获取
+            if (active != null) {
+                cb.onResourceReady(active);
+                if (Log.isLoggable(TAG, Log.VERBOSE)) {
+                    logWithTimeAndKey("Loaded resource from active resources", startTime, key);
+                }
+                return null;
+            }
+
+            EngineJob current = jobs.get(key);
+            if (current != null) {
+                current.addCallback(cb);
+                if (Log.isLoggable(TAG, Log.VERBOSE)) {
+                    logWithTimeAndKey("Added to existing load", startTime, key);
+                }
+                return new LoadStatus(cb, current);
+            }
+
+            //第一次应该走到这里
+            EngineJob engineJob = engineJobFactory.build(key, isMemoryCacheable);
+            DecodeJob<T, Z, R> decodeJob = new DecodeJob<T, Z, R>(key, width, height, fetcher, loadProvider, transformation,
+                    transcoder, diskCacheProvider, diskCacheStrategy, priority);
+            EngineRunnable runnable = new EngineRunnable(engineJob, decodeJob, priority);
+            jobs.put(key, engineJob);
+            engineJob.addCallback(cb);
+            engineJob.start(runnable);    //关注这里 ----->run
+
+            if (Log.isLoggable(TAG, Log.VERBOSE)) {
+                logWithTimeAndKey("Started new load", startTime, key);
+            }
+            return new LoadStatus(cb, engineJob);
+        }
+
+        //----->run
+        //EngineRunnable.java
+        @Override
+        public void run() {
+            if (isCancelled) {
+                return;
+            }
+
+            Exception exception = null;
+            Resource<?> resource = null;
+            try {
+                resource = decode();    //run this code ---------> decode
+            } catch (Exception e) {
+                if (Log.isLoggable(TAG, Log.VERBOSE)) {
+                    Log.v(TAG, "Exception decoding", e);
+                }
+                exception = e;
+            }
+
+            if (isCancelled) {
+                if (resource != null) {
+                    resource.recycle();
+                }
+                return;
+            }
+
+            if (resource == null) {
+                onLoadFailed(exception);
+            } else {
+                // resource -> GlideBitmapDrawableResource(GlideBitmapDrawable(..., ...), bitmapPool)
+                onLoadComplete(resource);   //------>onLoadComplete(resource)
+            }
+        }
+        //EngineRunnable.java
+        private Resource<?> decode() throws Exception {
+            if (isDecodingFromCache()) {
+                return decodeFromCache();
+            } else {
+                return decodeFromSource(); // here
+            }
+        }
+        //EngineRunnable.java
+        private Resource<?> decodeFromSource() throws Exception {
+            return decodeJob.decodeFromSource();
+        }
+        //DecodeJob.java
+        public Resource<Z> decodeFromSource() throws Exception {
+            Resource<T> decoded = decodeSource(); // decodedSource -> GifBitmapWrapperResource(GifBitmapWrapper(bitmapResource, null))
+            return transformEncodeAndTranscode(decoded);
+        }
+
+        //-----> decodeSource
+        //DecodeJob.java
+        private Resource<T> decodeSource() throws Exception {
+            Resource<T> decoded = null;
+            try {
+                long startTime = LogTime.getLogTime();
+                //ImageVideoFetcher
+                //data -> ImageVideoWrapper(InputStream, null)
+                final A data = fetcher.loadData(priority);    //---->loadData
+                if (Log.isLoggable(TAG, Log.VERBOSE)) {
+                    logWithTimeAndKey("Fetched data", startTime);
+                }
+                if (isCancelled) {
+                    return null;
+                }
+                //decoded -> GifBitmapWrapperResource(GifBitmapWrapper(bitmapResource, null))
+                decoded = decodeFromSourceData(data);    //---->decodeFromSourceData
+            } finally {
+                fetcher.cleanup();
+            }
+            //BitmapResource
+            return decoded;
+        }
+
+        //---->loadData
+        //ImageVideoFetcher
+        public ImageVideoWrapper loadData(Priority priority) throws Exception {
+            InputStream is = null;
+            if (streamFetcher != null) {
+                try {
+                    //HttpUrlFetcher
+                    is = streamFetcher.loadData(priority);    //----> loadData
+                } catch (Exception e) {
+                    if (Log.isLoggable(TAG, Log.VERBOSE)) {
+                        Log.v(TAG, "Exception fetching input stream, trying ParcelFileDescriptor", e);
+                    }
+                    if (fileDescriptorFetcher == null) {
+                        throw e;
+                    }
+                }
+            }
+
+            ParcelFileDescriptor fileDescriptor = null;
+            if (fileDescriptorFetcher != null) {
+                try {
+                    // fileDescriptor ---> null
+                    fileDescriptor = fileDescriptorFetcher.loadData(priority);
+                } catch (Exception e) {
+                    if (Log.isLoggable(TAG, Log.VERBOSE)) {
+                        Log.v(TAG, "Exception fetching ParcelFileDescriptor", e);
+                    }
+                    if (is == null) {
+                        throw e;
+                    }
+                }
+            }
+            //new ImageVideoWrapper(InputStream, null)
+            return new ImageVideoWrapper(is, fileDescriptor);
+        }
+
+        //HttpUrlFetcher.java
+        @Override
+        public InputStream loadData(Priority priority) throws Exception {
+            return loadDataWithRedirects(glideUrl.toURL(), 0 /*redirects*/, null /*lastUrl*/, glideUrl.getHeaders());
+        }
+        //HttpUrlFetcher.java
+        private InputStream loadDataWithRedirects(URL url, int redirects, URL lastUrl, Map<String, String> headers)
+                throws IOException {
+            if (redirects >= MAXIMUM_REDIRECTS) {
+                throw new IOException("Too many (> " + MAXIMUM_REDIRECTS + ") redirects!");
+            } else {
+                // Comparing the URLs using .equals performs additional network I/O and is generally broken.
+                // See http://michaelscharf.blogspot.com/2006/11/javaneturlequals-and-hashcode-make.html.
+                try {
+                    if (lastUrl != null && url.toURI().equals(lastUrl.toURI())) {
+                        throw new IOException("In re-direct loop");
+                    }
+                } catch (URISyntaxException e) {
+                    // Do nothing, this is best effort.
+                }
+            }
+            urlConnection = connectionFactory.build(url);
+            for (Map.Entry<String, String> headerEntry : headers.entrySet()) {
+              urlConnection.addRequestProperty(headerEntry.getKey(), headerEntry.getValue());
+            }
+            urlConnection.setConnectTimeout(2500);
+            urlConnection.setReadTimeout(2500);
+            urlConnection.setUseCaches(false);
+            urlConnection.setDoInput(true);
+
+            // Connect explicitly to avoid errors in decoders if connection fails.
+            urlConnection.connect();
+            if (isCancelled) {
+                return null;
+            }
+            final int statusCode = urlConnection.getResponseCode();
+            if (statusCode / 100 == 2) {
+                return getStreamForSuccessfulRequest(urlConnection);    //----> getStreamForSuccessfulRequest
+            } else if (statusCode / 100 == 3) {
+                String redirectUrlString = urlConnection.getHeaderField("Location");
+                if (TextUtils.isEmpty(redirectUrlString)) {
+                    throw new IOException("Received empty or null redirect url");
+                }
+                URL redirectUrl = new URL(url, redirectUrlString);
+                return loadDataWithRedirects(redirectUrl, redirects + 1, url, headers);
+            } else {
+                if (statusCode == -1) {
+                    throw new IOException("Unable to retrieve response code from HttpUrlConnection.");
+                }
+                throw new IOException("Request failed " + statusCode + ": " + urlConnection.getResponseMessage());
+            }
+        }
+
+        //HttpUrlFetcher.java
+        private InputStream getStreamForSuccessfulRequest(HttpURLConnection urlConnection)
+                throws IOException {
+            if (TextUtils.isEmpty(urlConnection.getContentEncoding())) {
+                int contentLength = urlConnection.getContentLength();
+                stream = ContentLengthInputStream.obtain(urlConnection.getInputStream(), contentLength);
+            } else {
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Log.d(TAG, "Got non empty content encoding: " + urlConnection.getContentEncoding());
+                }
+                stream = urlConnection.getInputStream();
+            }
+            //最终网络请求返回了一个InputStream
+            return stream;
+        }
+
+        //---->decodeFromSourceData
+        //DecodeJob.java
+        //A data --> ImageVideoWrapper(InputStream, null)
+        private Resource<T> decodeFromSourceData(A data) throws IOException {
+            final Resource<T> decoded;
+            //最终都会走decode
+            if (diskCacheStrategy.cacheSource()) {
+                decoded = cacheAndDecodeSourceData(data);
+            } else {
+                long startTime = LogTime.getLogTime();
+                //localProvider -> ImageVideoGifDrawableLoadProvider    loadProvider.getSourceDecoder() -> GifBitmapWrapperResourceDecoder
+                //decoded -> GifBitmapWrapperResource(GifBitmapWrapper(bitmapResource, null))
+                decoded = loadProvider.getSourceDecoder().decode(data, width, height);
+                if (Log.isLoggable(TAG, Log.VERBOSE)) {
+                    logWithTimeAndKey("Decoded from source", startTime);
+                }
+            }
+            return decoded;
+        }
+        //GifBitmapWrapperResourceDecoder
+        public GifBitmapWrapperResourceDecoder(ResourceDecoder<ImageVideoWrapper, Bitmap> bitmapDecoder,
+                ResourceDecoder<InputStream, GifDrawable> gifDecoder, BitmapPool bitmapPool) {
+            this(bitmapDecoder, gifDecoder, bitmapPool, DEFAULT_PARSER, DEFAULT_STREAM_FACTORY);
+        }
+
+        // Visible for testing.
+        GifBitmapWrapperResourceDecoder(ResourceDecoder<ImageVideoWrapper, Bitmap> bitmapDecoder,
+                ResourceDecoder<InputStream, GifDrawable> gifDecoder, BitmapPool bitmapPool, ImageTypeParser parser,
+                BufferedStreamFactory streamFactory) {
+            this.bitmapDecoder = bitmapDecoder; //FileToStreamDecoder(new StreamBitmapDecoder(bitmapPool, decodeFormat))
+            this.gifDecoder = gifDecoder;       //GifResourceDecoder
+            this.bitmapPool = bitmapPool;
+            this.parser = parser;
+            this.streamFactory = streamFactory;
+        }
+
+        public StreamBitmapDataLoadProvider(BitmapPool bitmapPool, DecodeFormat decodeFormat) {
+            sourceEncoder = new StreamEncoder();
+            decoder = new StreamBitmapDecoder(bitmapPool, decodeFormat);
+            encoder = new BitmapEncoder();
+            cacheDecoder = new FileToStreamDecoder<Bitmap>(decoder);
+        }
+
+        //GifDrawableLoadProvider.java
+        public GifDrawableLoadProvider(Context context, BitmapPool bitmapPool) {
+            decoder = new GifResourceDecoder(context, bitmapPool);
+            cacheDecoder = new FileToStreamDecoder<GifDrawable>(decoder);
+            encoder = new GifResourceEncoder(bitmapPool);
+            sourceEncoder = new StreamEncoder();
+        }
+
+        //GifBitmapWrapperResourceDecoder.java
+        //ImageVideoWrapper source --> ImageVideoWrapper(InputStream, null)
+        @Override
+        public Resource<GifBitmapWrapper> decode(ImageVideoWrapper source, int width, int height) throws IOException {
+            ByteArrayPool pool = ByteArrayPool.get();
+            byte[] tempBytes = pool.getBytes();
+
+            GifBitmapWrapper wrapper = null;
+            try {
+                wrapper = decode(source, width, height, tempBytes);
+            } finally {
+                pool.releaseBytes(tempBytes);
+            }
+            //GifBitmapWrapperResource(GifBitmapWrapper(bitmapResource, null))
+            return wrapper != null ? new GifBitmapWrapperResource(wrapper) : null;
+        }
+
+        //GifBitmapWrapperResourceDecoder.java
+        private GifBitmapWrapper decode(ImageVideoWrapper source, int width, int height, byte[] bytes) throws IOException {
+            final GifBitmapWrapper result;
+            if (source.getStream() != null) {
+                result = decodeStream(source, width, height, bytes); //run this code
+            } else {
+                result = decodeBitmapWrapper(source, width, height);
+            }
+            //GifBitmapWrapper(bitmapResource, null)
+            return result;
+        }
+
+        //GifBitmapWrapperResourceDecoder.java
+        private GifBitmapWrapper decodeStream(ImageVideoWrapper source, int width, int height, byte[] bytes)
+                throws IOException {
+            InputStream bis = streamFactory.build(source.getStream(), bytes);
+            bis.mark(MARK_LIMIT_BYTES);
+            ImageHeaderParser.ImageType type = parser.parse(bis);
+            bis.reset();
+
+            GifBitmapWrapper result = null;
+            if (type == ImageHeaderParser.ImageType.GIF) {
+                result = decodeGifWrapper(bis, width, height);
+            }
+            // Decoding the gif may fail even if the type matches.
+            if (result == null) {//not gif run this code
+                // We can only reset the buffered InputStream, so to start from the beginning of the stream, we need to
+                // pass in a new source containing the buffered stream rather than the original stream.
+                ImageVideoWrapper forBitmapDecoder = new ImageVideoWrapper(bis, source.getFileDescriptor());
+                result = decodeBitmapWrapper(forBitmapDecoder, width, height);
+            }
+            //GifBitmapWrapper(bitmapResource, null)
+            return result;
+        }
+
+        //GifBitmapWrapperResourceDecoder.java
+        // toDecode -> ImageVideoWrapper
+        private GifBitmapWrapper decodeBitmapWrapper(ImageVideoWrapper toDecode, int width, int height) throws IOException {
+            GifBitmapWrapper result = null;
+
+            //bitmapDecoder -> FileToStreamDecoder(new StreamBitmapDecoder(bitmapPool, decodeFormat))
+            Resource<Bitmap> bitmapResource = bitmapDecoder.decode(toDecode, width, height);
+            if (bitmapResource != null) {
+                result = new GifBitmapWrapper(bitmapResource, null);
+            }
+
+            // GifBitmapWrapper(BitmapResource, null)
+            return result;
+        }
+
+        //FileToStreamDecoder.java
+        @Override
+        public Resource<T> decode(File source, int width, int height) throws IOException {
+            InputStream is = null;
+            Resource<T> result = null;
+            try {
+                is = fileOpener.open(source);
+                //streamDecoder -> StreamBitmapDecoder
+                result = streamDecoder.decode(is, width, height);
+            } finally {
+                if (is != null) {
+                    try {
+                        is.close();
+                    } catch (IOException e) {
+                        // Do nothing.
+                    }
+                }
+            }
+            return result;
+        }
+
+        //StreamBitmapDecoder.java
+        @Override
+        public Resource<Bitmap> decode(InputStream source, int width, int height) {
+            Bitmap bitmap = downsampler.decode(source, bitmapPool, width, height, decodeFormat);
+            //BitmapResource
+            return BitmapResource.obtain(bitmap, bitmapPool);
+        }
+
+        //---->transformEncodeAndTranscode(decoded);  decoded -> GifBitmapWrapper(bitmapResource, null)
+        //DecodeJob.java
+        private Resource<Z> transformEncodeAndTranscode(Resource<T> decoded) {
+            long startTime = LogTime.getLogTime();
+            //run transform 默认为 UnitTransformation，啥也不做
+            Resource<T> transformed = transform(decoded);
+            if (Log.isLoggable(TAG, Log.VERBOSE)) {
+                logWithTimeAndKey("Transformed resource from source", startTime);
+            }
+
+            // put transformed to cache
+            writeTransformedToCache(transformed);
+
+            startTime = LogTime.getLogTime();
+            // transcode
+            Resource<Z> result = transcode(transformed);
+            if (Log.isLoggable(TAG, Log.VERBOSE)) {
+                logWithTimeAndKey("Transcoded transformed from source", startTime);
+            }
+            return result;
+        }
+
+        //DecodeJob.java
+        //transcoder -> GifBitmapWrapperDrawableTranscoder transformed -> GifBitmapWrapperResource(GifBitmapWrapper(bitmapResource, null))
+        private Resource<Z> transcode(Resource<T> transformed) {
+            if (transformed == null) {
+                return null;
+            }
+            return transcoder.transcode(transformed);
+        }
+
+        //GifBitmapWrapperDrawableTranscoder.java
+        @Override
+        public Resource<GlideDrawable> transcode(Resource<GifBitmapWrapper> toTranscode) {
+            GifBitmapWrapper gifBitmap = toTranscode.get();
+            Resource<Bitmap> bitmapResource = gifBitmap.getBitmapResource();
+
+            final Resource<? extends GlideDrawable> result;
+            if (bitmapResource != null) {
+                //bitmapDrawableResourceTranscoder -> GlideBitmapDrawableTranscoder
+                result = bitmapDrawableResourceTranscoder.transcode(bitmapResource);
+            } else {
+                result = gifBitmap.getGifResource();
+            }
+            // This is unchecked but always safe, anything that extends a Drawable can be safely cast to a Drawable.
+            return (Resource<GlideDrawable>) result;
+        }
+
+        //GlideBitmapDrawableTranscoder.java
+        //toTranscode -> BitmapResource
+        @Override
+        public Resource<GlideBitmapDrawable> transcode(Resource<Bitmap> toTranscode) {
+            GlideBitmapDrawable drawable = new GlideBitmapDrawable(resources, toTranscode.get());
+            return new GlideBitmapDrawableResource(drawable, bitmapPool);
+        }
+
+        //----------->onLoadComplete(resource)
+        //EngineRunnable.java
+        //resource -> GlideBitmapDrawableResource(GlideBitmapDrawable(..., ...), bitmapPool)
+       private void onLoadComplete(Resource resource) {
+           manager.onResourceReady(resource);
+       }
+
+       //EngineJob.java
+       @Override
+       public void onResourceReady(final Resource<?> resource) {
+           // resource -> GlideBitmapDrawableResource(GlideBitmapDrawable(..., ...), bitmapPool)
+           this.resource = resource;
+           MAIN_THREAD_HANDLER.obtainMessage(MSG_COMPLETE, this).sendToTarget();
+       }
+
+        //EngineJob.java
+        @Override
+        public boolean handleMessage(Message message) {
+            if (MSG_COMPLETE == message.what || MSG_EXCEPTION == message.what) {
+                EngineJob job = (EngineJob) message.obj;
+                if (MSG_COMPLETE == message.what) {
+                    job.handleResultOnMainThread();
+                } else {
+                    job.handleExceptionOnMainThread();
+                }
+                return true;
+            }
+
+            return false;
+        }
+
+        //EngineJob.java
+        private void handleResultOnMainThread() {
+            if (isCancelled) {
+                resource.recycle();
+                return;
+            } else if (cbs.isEmpty()) {
+                throw new IllegalStateException("Received a resource without any callbacks to notify");
+            }
+            // resource -> GlideBitmapDrawableResource(GlideBitmapDrawable(..., ...), bitmapPool)
+            engineResource = engineResourceFactory.build(resource, isCacheable);
+            hasResource = true;
+
+            // Hold on to resource for duration of request so we don't recycle it in the middle of notifying if it
+            // synchronously released by one of the callbacks.
+            engineResource.acquire();
+            listener.onEngineJobComplete(key, engineResource);
+
+            for (ResourceCallback cb : cbs) {
+                if (!isInIgnoredCallbacks(cb)) {
+                    engineResource.acquire();
+                    cb.onResourceReady(engineResource);//----->onResourceReady
+                }
+            }
+            // Our request is complete, so we can release the resource.
+            engineResource.release();
+        }
+
+        //GenericRequest.java
+        @Override
+        public void onResourceReady(Resource<?> resource) {
+            if (resource == null) {
+                onException(new Exception("Expected to receive a Resource<R> with an object of " + transcodeClass
+                        + " inside, but instead got null."));
+                return;
+            }
+
+            Object received = resource.get();
+            if (received == null || !transcodeClass.isAssignableFrom(received.getClass())) {
+                releaseResource(resource);
+                onException(new Exception("Expected to receive an object of " + transcodeClass
+                        + " but instead got " + (received != null ? received.getClass() : "") + "{" + received + "}"
+                        + " inside Resource{" + resource + "}."
+                        + (received != null ? "" : " "
+                            + "To indicate failure return a null Resource object, "
+                            + "rather than a Resource object containing null data.")
+                ));
+                return;
+            }
+
+            if (!canSetResource()) {
+                releaseResource(resource);
+                // We can't set the status to complete before asking canSetResource().
+                status = Status.COMPLETE;
+                return;
+            }
+            //resource -> EngineResource(---received---) , received -> GlideBitmapDrawable(..., ...)
+            onResourceReady(resource, (R) received);
+        }
+
+        //GenericRequest.java
+        private void onResourceReady(Resource<?> resource, R result) {
+            // We must call isFirstReadyResource before setting status.
+            boolean isFirstResource = isFirstReadyResource();
+            status = Status.COMPLETE;
+            this.resource = resource;
+
+            if (requestListener == null || !requestListener.onResourceReady(result, model, target, loadedFromMemoryCache,
+                    isFirstResource)) {
+                GlideAnimation<R> animation = animationFactory.build(loadedFromMemoryCache, isFirstResource);
+                //target -> GlideDrawableImageViewTarget
+                //result -> GlideBitmapDrawable(..., ...)
+                target.onResourceReady(result, animation);
+            }
+
+            notifyLoadSuccess();
+
+            if (Log.isLoggable(TAG, Log.VERBOSE)) {
+                logV("Resource ready in " + LogTime.getElapsedMillis(startTime) + " size: "
+                        + (resource.getSize() * TO_MEGABYTE) + " fromCache: " + loadedFromMemoryCache);
+            }
+        }
+
+        //GlideDrawableImageViewTarget.java
+        @Override
+        public void onResourceReady(GlideDrawable resource, GlideAnimation<? super GlideDrawable> animation) {
+            if (!resource.isAnimated()) {
+                //TODO: Try to generalize this to other sizes/shapes.
+                // This is a dirty hack that tries to make loading square thumbnails and then square full images less costly
+                // by forcing both the smaller thumb and the larger version to have exactly the same intrinsic dimensions.
+                // If a drawable is replaced in an ImageView by another drawable with different intrinsic dimensions,
+                // the ImageView requests a layout. Scrolling rapidly while replacing thumbs with larger images triggers
+                // lots of these calls and causes significant amounts of jank.
+                float viewRatio = view.getWidth() / (float) view.getHeight();
+                float drawableRatio = resource.getIntrinsicWidth() / (float) resource.getIntrinsicHeight();
+                if (Math.abs(viewRatio - 1f) <= SQUARE_RATIO_MARGIN
+                        && Math.abs(drawableRatio - 1f) <= SQUARE_RATIO_MARGIN) {
+                    resource = new SquaringDrawable(resource, view.getWidth());
+                }
+            }
+            //resource -> GlideBitmapDrawableResource(GlideBitmapDrawable(..., ...), bitmapPool)
+            super.onResourceReady(resource, animation);  //---->onResourceReady
+            this.resource = resource;
+            resource.setLoopCount(maxLoopCount);
+            resource.start();
+        }
+
+        //ImageViewTarget.java
+        @Override
+        public void onResourceReady(Z resource, GlideAnimation<? super Z> glideAnimation) {
+            if (glideAnimation == null || !glideAnimation.animate(resource, this)) {
+                setResource(resource);
+            }
+        }
+
+        //GlideDrawableImageViewTarget.java
+        @Override
+        protected void setResource(GlideDrawable resource) {
+            view.setImageDrawable(resource);
+        }

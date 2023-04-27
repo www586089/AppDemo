@@ -67,6 +67,7 @@
         <activity android:name=".activity.bitmap.BitmapActivity"/>
         <activity android:name=".activity.window.PopWindowActivity"/>
         <activity android:name=".activity.qr.QRCodeActivity"/>
+        <activity android:name=".activity.glide.GlideActivity"/>
     </application>
 
 </manifest>

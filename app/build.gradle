@@ -56,4 +56,14 @@ dependencies {
 
     //zxing库引入
     implementation 'com.google.zxing:core:3.4.1'
+
+    // glide
+    implementation 'com.github.bumptech.glide:glide:3.7.0'
+    // If you want to use the GPU Filters
+    implementation 'jp.co.cyberagent.android:gpuimage:2.0.2'
+    implementation 'jp.wasabeef:glide-transformations:2.0.2'//https://github.com/wasabeef/glide-transformations
+    //okhttp
+    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
+//    implementation 'com.github.bumptech.glide:okhttp3-integration:1.5.0@aar'
+
 }
